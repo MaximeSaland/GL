@@ -16,7 +16,6 @@ public class Worker implements Callable <Integer> {
     private AtomicInteger counter = null;
 
     private static final String HTML_PATH= "html";
-    private static final String PATH_404= "/404.html";
 
     Worker(int id, Socket socket, AtomicInteger counter) {
         this.id = id;
@@ -27,21 +26,30 @@ public class Worker implements Callable <Integer> {
     @Override
     public Integer call() throws Exception {
         System.out.println("Thread " + this.id);
+
         InputStream is = socket.getInputStream();
         byte bytes[] = new byte[1024];
         is.read(bytes);
         String request = new String(bytes);
-        // System.out.println(request);
+        System.out.println(request);
+
         String content = parseRequest(request);
-        System.out.println(content);
+        OutputStream os = socket.getOutputStream();
         if (content != null) {
-            OutputStream os = socket.getOutputStream();
             os.write(htmlToByte(content));
         }
+        else {
+            os.write(htmlToByte("<h1>404 Error file not found </h1>"));
+        }
 
-        Thread.sleep(5000);
+        // Exercice précédent
+        //Thread.sleep(5000);
+
         incrementBy(request.split("\r\n|\r|\n").length - 2);
         System.out.println("Counter: " + counter);
+
+        os.close();
+        is.close();
         this.socket.close();
         return id;
     }
@@ -54,7 +62,6 @@ public class Worker implements Callable <Integer> {
 
     private String parseRequest(String request) {
         String path = request.split("\n")[0].split(" ")[1];
-        String content = "";
         try{
             return getFileContent(HTML_PATH + path);
         } catch (Exception e) {
@@ -64,19 +71,9 @@ public class Worker implements Callable <Integer> {
     }
 
     private String getFileContent(String filePath) throws Exception{
-        try {
-            Path path = Paths.get(filePath);
-            System.out.println("Current dir : " + System.getProperty("user.dir"));
-            if (Files.exists(path)) {
-                System.out.println("EXIST");
-            }
-            byte[] bytes = Files.readAllBytes(path);
-            return new String(bytes);
-
-        }catch (Exception e) {
-            e.getStackTrace();
-        }
-        return null;
+        Path path = Paths.get(filePath);
+        byte[] bytes = Files.readAllBytes(path);
+        return new String(bytes);
     }
 
     byte [] htmlToByte(String htmlContent) {
