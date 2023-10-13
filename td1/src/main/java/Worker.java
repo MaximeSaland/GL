@@ -27,8 +27,6 @@ public class Worker implements Callable <Integer> {
         Thread.sleep(5000);
         incrementBy(request.split("\r\n|\r|\n").length - 2);
         System.out.println("Counter: " + counter);
-//        OutputStream os = socket.getOutputStream();
-        //os.write("coucou".getBytes());
         this.socket.close();
         return id;
     }
