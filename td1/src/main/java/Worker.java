@@ -17,6 +17,7 @@ public class Worker implements Callable <Integer> {
         System.out.println("Thread " + this.id);
         OutputStream os = socket.getOutputStream();
         //os.write("coucou".getBytes());
+        this.socket.close();
         return id;
     }
 }

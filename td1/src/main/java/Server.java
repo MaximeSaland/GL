@@ -17,20 +17,20 @@ public class Server {
             System.out.println("Connexion waiting");
 //        Queue<Future<Integer>> resultList = new LinkedBlockingQueue<>();
             int i = 0;
-            while (true) {
+            while (i < maxConnection) {
                 Socket socket = serverSocket.accept();
                 System.out.println("Client connected");
-                Future<Integer> result = pool.submit(new Worker(i, socket));
-                //          resultList.add(result);
-/*              InputStream is = socket.getInputStream();
+
+                InputStream is = socket.getInputStream();
                 byte bytes[] = new byte[1024];
                 int byteRead = is.read(bytes);
                 String request = new String(bytes);
                 System.out.println("Le client demande : " + request);
+
                 OutputStream os = socket.getOutputStream();
-                os.write(getContent(request));*/
+                pool.submit(new Worker(i, socket));
+                os.write(getContent(request));
                 i = i + 1;
-                socket.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
