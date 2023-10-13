@@ -59,12 +59,4 @@ public class Server {
         });
         closeServer.start();
     }
-
-    byte [] toHtlm(String htmlContent) {
-        String ret = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n" + htmlContent;
-        return ret.getBytes();
-    }
-    byte [] getContent(String request) {
-        return toHtlm("<h1> Mon titre </h1>\nJe suis un contenu");
-    }
 }
