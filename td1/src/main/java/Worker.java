@@ -1,6 +1,10 @@
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -10,6 +14,10 @@ public class Worker implements Callable <Integer> {
     private Socket socket;
 
     private AtomicInteger counter = null;
+
+    private static final String HTML_PATH= "html";
+    private static final String PATH_404= "/404.html";
+
     Worker(int id, Socket socket, AtomicInteger counter) {
         this.id = id;
         this.socket = socket;
@@ -23,7 +31,14 @@ public class Worker implements Callable <Integer> {
         byte bytes[] = new byte[1024];
         is.read(bytes);
         String request = new String(bytes);
-        System.out.println(request);
+        // System.out.println(request);
+        String content = parseRequest(request);
+        System.out.println(content);
+        if (content != null) {
+            OutputStream os = socket.getOutputStream();
+            os.write(htmlToByte(content));
+        }
+
         Thread.sleep(5000);
         incrementBy(request.split("\r\n|\r|\n").length - 2);
         System.out.println("Counter: " + counter);
@@ -35,5 +50,37 @@ public class Worker implements Callable <Integer> {
         for (int i = 0; i < n; i++) {
             counter.incrementAndGet();
         }
+    }
+
+    private String parseRequest(String request) {
+        String path = request.split("\n")[0].split(" ")[1];
+        String content = "";
+        try{
+            return getFileContent(HTML_PATH + path);
+        } catch (Exception e) {
+            e.getStackTrace();
+            return null;
+        }
+    }
+
+    private String getFileContent(String filePath) throws Exception{
+        try {
+            Path path = Paths.get(filePath);
+            System.out.println("Current dir : " + System.getProperty("user.dir"));
+            if (Files.exists(path)) {
+                System.out.println("EXIST");
+            }
+            byte[] bytes = Files.readAllBytes(path);
+            return new String(bytes);
+
+        }catch (Exception e) {
+            e.getStackTrace();
+        }
+        return null;
+    }
+
+    byte [] htmlToByte(String htmlContent) {
+        String ret = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n" + htmlContent;
+        return ret.getBytes();
     }
 }
