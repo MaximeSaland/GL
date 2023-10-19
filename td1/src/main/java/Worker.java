@@ -5,6 +5,8 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -61,13 +63,25 @@ public class Worker implements Callable <Integer> {
     }
 
     private String parseRequest(String request) {
-        String path = request.split("\n")[0].split(" ")[1];
-        try{
-            return getFileContent(HTML_PATH + path);
+        String path = request.split("\n")[0].split(" ")[1].split("\\?")[0];
+        String[] queryParams = request.split("\n")[0].split(" ")[1].split("\\?");
+        HashMap<String, String> params = new HashMap<>();
+        final String[] content = {null};
+        try {
+            content[0] = getFileContent(HTML_PATH + path);
         } catch (Exception e) {
-            e.getStackTrace();
-            return null;
+            e.printStackTrace();
         }
+        if (queryParams.length == 2) {
+            String[][] queryParams2 = Arrays.stream(queryParams[1].split("&"))
+                .map(e -> e.split("="))
+                .toArray(String[][]::new);
+            for (String[] param : queryParams2) {
+                params.put(param[0], param[1]);
+            }
+            params.forEach((k, v) -> {content[0] = content[0].replaceAll("\\$\\{"+k+"\\}", v);});
+        }
+        return content[0];
     }
 
     private String getFileContent(String filePath) throws Exception{
