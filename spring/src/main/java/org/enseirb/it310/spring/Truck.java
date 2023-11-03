@@ -3,10 +3,15 @@ package org.enseirb.it310.spring;
 import java.time.Instant;
 
 // Authors : Van Khôi LE et Maxime SALAND
+
 public class Truck {
     private String immatriculation;
     private String dateOfFirstRegistration;
     private double netWeight;
+
+    public Truck() {
+
+    }
 
     public Truck(String immatriculation, String dateOfFirstRegistration, double netWeight) {
         setImmatriculation(immatriculation);

@@ -11,16 +11,23 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 
 @Component
-public class CitiesProducer {
-    public static final String TOPIC = "log";
-    private final Logger log = LoggerFactory.getLogger(CitiesProducer.class);
+public class Producer {
+    public static final String TOPIC = "msaland.json";
+    private final Logger log = LoggerFactory.getLogger(Producer.class);
 
     @Autowired
-    KafkaTemplate<String, String> kafkaTemplate;
+    KafkaTemplate<String, Truck> kafkaTemplate;
 
+/*
     @EventListener(ContextRefreshedEvent.class)
     public void onApplicationStarted() {
         log.info("Application starting");
-        kafkaTemplate.send(TOPIC, "Maxime's app starting at " + Instant.now());
+        kafkaTemplate.send(TOPIC, "(￣▽￣)/ " + Instant.now());
+    }
+*/
+
+    public void sendMessage(Truck msg) {
+        log.info("msg: " + msg);
+        kafkaTemplate.send(TOPIC, msg);
     }
 }
