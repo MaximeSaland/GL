@@ -1,9 +1,13 @@
 spring:
   kafka:
+    listener:
+      ack-mode: manual
     bootstrap-servers: breisen.datamix.ovh:9093
-    producer:
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     consumer:
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      enable-auto-commit: false
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
-        spring.json.trusted.packages: "org.enseirb.it310.spring"
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: org.enseirb.it310.truckTracker.TruckPositionMessage
+        spring.json.trusted.packages: "org.enseirb.it310.truckTracker"
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
