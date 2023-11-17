@@ -4,6 +4,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.listener.ConsumerSeekAware;
 import org.springframework.kafka.support.Acknowledgment;
@@ -21,7 +22,10 @@ import java.util.stream.Collectors;
 public class Consumer implements ConsumerSeekAware {
     private final Logger log = LoggerFactory.getLogger(Application.class);
     private List<TruckPositionMessage> truckPositionMessages = new ArrayList<>();
-    private final long kafkaSeekTs = Instant.now().minus(1, ChronoUnit.HOURS).toEpochMilli();
+    private final long kafkaSeekTs = Instant.now().minus(10, ChronoUnit.SECONDS).toEpochMilli();
+
+    @Autowired
+    AlertService alertService;
 
     @Override
     public void onPartitionsAssigned(Map<TopicPartition, Long> assignments, ConsumerSeekCallback callback) {
@@ -33,6 +37,7 @@ public class Consumer implements ConsumerSeekAware {
         log.info(positionMessage.toString());
         truckPositionMessages.add(positionMessage);
         ack.acknowledge();
+        alertService.checkAndPublish(positionMessage);
     }
 
     public List<TruckPositionMessage> getPositions() {

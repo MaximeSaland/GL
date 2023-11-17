@@ -11,3 +11,7 @@ spring:
         spring.json.value.default.type: org.enseirb.it310.truckTracker.TruckPositionMessage
         spring.json.trusted.packages: "org.enseirb.it310.truckTracker"
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+server:
+  port: 8081
